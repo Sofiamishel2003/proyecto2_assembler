@@ -7,7 +7,6 @@
 ; Autor: Esteban Meza #22252 ,Sofia Mishell Velasquez #22049, Nicolle Gordillo #22246,Paula Rebeca Barillas #22764
 ; ----------------------------------------------- 
 
-
 .386
 .model flat, stdcall, c
 .stack 4096
@@ -20,7 +19,7 @@ msg1 BYTE ' Cuanto es | -77 | ?',0Ah,0
 msg2 BYTE ' 16 + 32 es igual a?',0Ah,0
 msg3 BYTE 'raiz cuadrada de 144',0Ah,0
 msg4 BYTE ' Cuanto es e a la 0?', 0AH,0
-msg5 BYTE ' Cuanto es cos(90 )?', 0AH,0
+msg5 BYTE ' Cuanto es cos(90°)?', 0AH,0
 msg6 BYTE 'La derivada de 5x es', 0AH,0
 msg7 BYTE '( 5 + 2) * 10 / 2 es', 0AH,0
 msg8 BYTE '  Cuanto es 56 / 7 ?', 0AH,0
@@ -29,12 +28,16 @@ msg10 BYTE '6x8 menos cuatro es:', 0AH,0
 msg11 BYTE '1/3 de 66 es igual a', 0AH,0
 msg12 BYTE 'si 10+x = 15, 2x es:', 0AH,0
 msg13 BYTE 'x+y=1 y 3x+2y=6, x =', 0AH,0
+fmt_valor db "%d", 0
 ;Preguntas dificiles
 p1 BYTE 'Cual es el area de un circulo con radio 5 unidades? (en pi )', 0AH,0 ; es 25
 p2 BYTE 'Cual es la pendiente de la recta que pasa por los puntos (2, 5) y (4, 3)?', 0AH,0 ;es 2
 prespuestas DWORD 10, 15, 20, 25, 1, 2, 3, 4 
 opf BYTE '%s).%d', 0AH, 0
-
+;Mensajes de incorrecta y correcta
+incorrecta BYTE 'Respuesta incorrecta ingresada',0AH,0
+correcta BYTE 'Respuesta correcta',0AH,0
+puntos DW 0; puntos acumulados
 ;Array de opciones para cada pregunta
 opi BYTE 'a', 0, 'b', 0, 'c', 0, 'd', 0, 'a', 0, 'b', 0, 'c', 0, 'd', 0
 ;Array de las preguntas
@@ -158,6 +161,23 @@ label1:
     sub ebx, 4
     cmp ebx, 16            
     jne label1
+    
+    add esp, 4 ; Limpia la pila
+    lea eax, [ebp-4] ; Obtiene la dirección de la variable local
+    push eax ; Pone la dirección en la pila
+    push offset fmt_valor ; Pone la dirección de la cadena de formato en la pila
+    call scanf ; Llama a la función scanf para leer el número ingresado
+    add esp, 8 ; Limpia la pila
+    mov eax, [ebp-4] ; Mueve el número ingresado a eax
+    .IF eax == 25 ; verificar si está correcta
+        add puntos, 3;
+		push offset correcta
+		call printf
+	.ELSE
+		push offset incorrecta
+		call printf
+	.ENDIF
+    add esp, 8 ; Limpia la pila
 ;Pregunta 2
     mov esi, offset prespuestas ; arreglo de respuestas
 	mov ebx, sizeof	prespuestas ; tamaño del arreglo respuestas
@@ -175,6 +195,22 @@ label2:
     sub ebx, 4
     cmp ebx, 16           
     jne label2
+    add esp, 4 ; Limpia la pila
+    lea eax, [ebp-4] ; Obtiene la dirección de la variable local
+    push eax ; Pone la dirección en la pila
+    push offset fmt_valor ; Pone la dirección de la cadena de formato en la pila
+    call scanf ; Llama a la función scanf para leer el número ingresado
+    add esp, 8 ; Limpia la pila
+    mov eax, [ebp-4] ; Mueve el número ingresado a eax
+    .IF eax == 2 ; verificar si está correcta
+        add puntos, 3;
+		push offset correcta
+		call printf
+	.ELSE
+		push offset incorrecta
+		call printf
+	.ENDIF
+    add esp, 8 ; Limpia la pila
     ret
 DificilPregunta1 endp
 
